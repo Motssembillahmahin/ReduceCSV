@@ -1,21 +1,21 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 import pandas as pd
 import io
 from io import BytesIO
 
 app = FastAPI()
 
-# Home route that serves the HTML file for file upload
+# Serve HTML for file upload
 @app.get("/", response_class=HTMLResponse)
 async def get_upload_form():
-    try: 
+    try:
         with open("index.html", "r") as f:
             return f.read()
     except FileNotFoundError:
-        return "<h1>Upload Form Not Found</h1><p>Please ensure the index.html file is present in the same directory.</p>"
+        raise HTTPException(status_code=404, detail="index.html not found")
 
-# Upload route to handle the file upload and processing
+# Handle file upload and processing
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     # Check if the file is valid
@@ -76,5 +76,5 @@ async def upload_file(file: UploadFile = File(...)):
     byte_io.write(csv.encode())
     byte_io.seek(0)  # Go to the beginning of the BytesIO object
 
-    # Return the CSV file as a downloadable attachment using StreamingResponse
+    # Ensure a proper StreamingResponse
     return StreamingResponse(byte_io, media_type='text/csv', headers={"Content-Disposition": "attachment; filename=cleaned_data.csv"})
