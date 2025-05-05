@@ -9,8 +9,11 @@ app = FastAPI()
 # Home route that serves the HTML file for file upload
 @app.get("/", response_class=HTMLResponse)
 async def get_upload_form():
-    with open("index.html", "r") as f:
-        return f.read()
+    try: 
+        with open("index.html", "r") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>Upload Form Not Found</h1><p>Please ensure the index.html file is present in the same directory.</p>"
 
 # Upload route to handle the file upload and processing
 @app.post("/upload")
