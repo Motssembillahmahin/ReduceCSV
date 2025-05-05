@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CSV File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background-color: #f3f4f6;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        .file-input {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px dashed #4CAF50;
+        }
+
+        .file-input input[type="file"] {
+            display: inline-block;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .submit-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .submit-btn:active {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Upload CSV File</h1>
+        <form action="/upload" method="POST" enctype="multipart/form-data">
+            <div class="file-input">
+                <label for="file">Choose a CSV file to upload</label>
+                <input type="file" name="file" accept=".csv" required>
+            </div>
+            <button type="submit" class="submit-btn">Upload and Process</button>
+        </form>
+    </div>
+
+</body>
+</html>

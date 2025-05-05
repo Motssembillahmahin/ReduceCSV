@@ -1,24 +1,27 @@
-from flask import Flask, render_template, request, send_file
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.responses import HTMLResponse, StreamingResponse
 import pandas as pd
 import io
+from io import BytesIO
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Home route that serves the HTML file for file upload
+@app.get("/", response_class=HTMLResponse)
+async def get_upload_form():
+    with open("index.html", "r") as f:
+        return f.read()
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return "No file part"
-    
-    file = request.files['file']
-    if file.filename == '':
-        return "No selected file"
+# Upload route to handle the file upload and processing
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    # Check if the file is valid
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a CSV file.")
     
     # Read the uploaded CSV file into pandas
-    data = pd.read_csv(file)
+    contents = await file.read()  # Read the content of the uploaded file (in bytes)
+    data = pd.read_csv(io.BytesIO(contents))
 
     # Perform necessary transformations on the dataframe
     columns_to_remove = [
@@ -62,17 +65,13 @@ def upload_file():
     ]
     data_cleaned = data_cleaned[columns_order]
 
-    # Convert dataframe to CSV for download
+    # Convert the DataFrame to a CSV file in memory
     csv = data_cleaned.to_csv(index=False)
 
-    # Convert string to bytes
-    byte_io = io.BytesIO()
+    # Convert CSV to BytesIO (in-memory file)
+    byte_io = BytesIO()
     byte_io.write(csv.encode())
     byte_io.seek(0)  # Go to the beginning of the BytesIO object
 
-    # Return the CSV file as an attachment
-    return send_file(byte_io, mimetype='text/csv', as_attachment=True, download_name='cleaned_data.csv')
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Return the CSV file as a downloadable attachment using StreamingResponse
+    return StreamingResponse(byte_io, media_type='text/csv', headers={"Content-Disposition": "attachment; filename=cleaned_data.csv"})
